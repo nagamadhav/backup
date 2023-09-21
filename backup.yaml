@@ -1,0 +1,25 @@
+---
+- name: Backup SQLite Database and Upload to SFTP/Cloud
+  hosts: 10.10.5.184
+  gather_facts: no
+  tasks:
+    - name: Dump SQLite Database
+      win_command: |
+        sqlite3.exe C:\sqlite3\database.db .dump > /tmp/database_dump.sql
+      register: sqlite_dump
+
+    - name: Upload to SFTP Server
+      community.windows.win_sftp:
+        hostname: 10.10.5.76
+        port: 22  # SFTP port
+        username: kap-user
+        password: 123!@#
+        src: C:\Users\inndata-adm-004\Downloads\sqlite-tools-win32-x86-3430100\sqlite-tools-win32-x86-3430100\sqlite3.exe 
+        dest: /kap-user/desktop
+ 
+      when: sqlite_dump.rc == 0
+
+    - name: Upload to /kap-user (optional)
+      community.windows.win_command: |
+        aws s3 cp /tmp/database_dump.sql s3://your-s3-bucket/path/on/s3/database_dump.sql
+      when: sqlite_dump.rc == 0
