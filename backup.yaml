@@ -19,7 +19,7 @@
  
       when: sqlite_dump.rc == 0
 
-    - name: Upload to /kap-user (optional)
+    - name: Upload to 10.10.5.76 (optional)
       community.windows.win_command: |
         aws s3 cp /tmp/database_dump.sql s3://your-s3-bucket/path/on/s3/database_dump.sql
       when: sqlite_dump.rc == 0
